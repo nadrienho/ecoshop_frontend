@@ -11,10 +11,9 @@ interface SidebarProps {
 }
 
 const menuOptions: Record<Role, { label: string; href: string; icon: string }[]> = {
-  // Ensure 'admin' matches the key used in your @/types/roles definition
-  // If your shared Role type uses "admin" but you want "shop_admin" labels, 
+  // Ensure 'shop_admin' matches the key used in your @/types/roles definition
   // ensure the key below matches the Type.
-  admin: [
+  shop_admin: [
     { label: "Dashboard", href: "/dashboard/shop_admin", icon: "📊" },
     { label: "Manage Customers", href: "/dashboard/shop_admin/customers", icon: "👥" },
     { label: "Manage Vendors", href: "/dashboard/shop_admin/vendors", icon: "🛍️" },
