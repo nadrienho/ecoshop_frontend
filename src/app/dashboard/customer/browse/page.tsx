@@ -223,7 +223,7 @@ export default function BrowseProductsPage() {
                     </button>
                 </div>
                 {/* EcoScore */}
-                <div className="absolute top-4 bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full shadow">
+                <div className="absolute top-4 right-4 bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full shadow">
                     {product.eco_score !== undefined ? product.eco_score : "N/A"}
                 </div>
 
