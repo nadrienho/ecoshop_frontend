@@ -1,12 +1,12 @@
 // middleware.ts
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import type { Role } from "./auth"; // or wherever you export Role
+import type { Role } from ".src/auth"; // or wherever you export Role
 
 const roleRoutes: Record<Role, string[]> = {
   customer:   ["/dashboard/customer", "/checkout"],
   vendor:     ["/dashboard/vendor", "/vendor"],
-  shop_admin: ["/dashboard/admin", "/admin"],   // ← was "admin", now "shop_admin"
+  shop_admin: ["/dashboard/admin", "/admin"],   
 };
 
 export async function middleware(req) {
