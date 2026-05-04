@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: '8000',
         pathname: '/media/**',
       },
+      // ADD THIS FOR PRODUCTION:
+      {
+        protocol: 'https',
+        hostname: 'https://ecoshop-backend-n4o8.onrender.com', // Replace with your actual Render URL
+        pathname: '/media/**',
+      },
     ],
   },
   experimental: {
