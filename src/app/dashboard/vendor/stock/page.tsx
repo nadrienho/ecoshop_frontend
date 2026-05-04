@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-// 1. Define the Product interface to satisfy the TypeScript compiler
-interface Product {
+
+type Product = {
   id: number;
   name: string;
   description: string;
@@ -34,14 +34,12 @@ function getStatusColor(status: string) {
   }
 }
 
-export default function VendorProducts() {
+export default function VendorStockPage() {
   const { data: session } = useSession();
-  
-  // 2. Properly type the state to avoid 'never[]'
   const [products, setProducts] = useState<Product[]>([]);
-  const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -78,25 +76,41 @@ export default function VendorProducts() {
     }
   }, [session, filter]); 
 
-  if (loading) {
-    return (
-      <div className="flex justify-center mt-10">
-        <div className="animate-spin text-3xl">⏳</div>
-        <p className="ml-2">Loading your products...</p>
-      </div>
+  async function updateStock(productId: number, newStock: number) {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/vendor/products/${productId}/stock/`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user?.access_token}`,
+        },
+        body: JSON.stringify({ stock: newStock }),
+      }
     );
+    if (res.ok) {
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === productId ? { ...p, stock: newStock } : p
+        )
+      );
+        setStatusMessage("Stock updated successfully!");
+
+        setTimeout(() => setStatusMessage(null), 3000);
+    } else {
+      console.error("Failed to update stock", await res.text());
+      setStatusMessage("Error updating stock.");
+      setTimeout(() => setStatusMessage(null), 3000);
+    }
   }
 
+  if (loading) return <div>Loading...</div>;
+
   return (
-    <div className="max-w-4xl mx-auto mt-10">
-      <div className="bg-gradient-to-r from-green-600 to-green-500 rounded-lg p-8 text-white shadow-lg flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">My Products</h1>
-        <button
-          onClick={() => router.push("/dashboard/vendor/products/create")}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-        >
-          Add Product
-        </button>
+    <div>
+      <div className="bg-gradient-to-r from-green-600 to-green-500 rounded-lg p-8 text-white shadow-lg">
+        <h1 className="text-4xl font-bold mb-2">Stock Management</h1>
+        <p className="text-green-100">View and manage product stock</p>
       </div>
 
       <div className="flex justify-end mb-4">
@@ -112,54 +126,56 @@ export default function VendorProducts() {
           ))}
         </select>
       </div>
-
-      {products.length > 0 ? (
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2 text-left text-gray-600">Name</th>
-              <th className="border border-gray-300 px-4 py-2 text-left text-gray-600">Description</th>
-              <th className="border border-gray-300 px-4 py-2 text-left text-gray-600">Price</th>
-              <th className="border border-gray-300 px-4 py-2 text-left text-gray-600">Stock</th>
-              <th className="border border-gray-300 px-4 py-2 text-left text-gray-600">Stock Status</th>
-              <th className="border border-gray-300 px-4 py-2 text-left text-gray-600">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-100">
-                <td className="border border-gray-300 px-4 py-2 font-medium text-gray-600">{product.name}</td>
-                <td className="border border-gray-300 px-4 py-2 text-gray-600">{product.description}</td>
-                <td className="border border-gray-300 px-4 py-2 text-gray-600">£{product.price}</td>
-                <td className="border border-gray-300 px-4 py-2 text-gray-600">{product.stock}</td>
-                
+  
+      <table className="min-w-full border text-gray-600 rounded-lg p-8 mt-6">
+        <thead>
+          <tr>
+            <th className="border px-4 py-2 bg-gray-200">Product</th>
+            <th className="border px-4 py-2 bg-gray-200">Stock</th>
+            <th className="border px-4 py-2 bg-gray-200">Update</th>
+            <th className="border px-4 py-2 bg-gray-200">Stock Status</th>
+            <th className="border px-4 py-2 bg-gray-200">Product Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr key={product.id}>
+              <td className="border px-4 py-2">{product.name}</td>
+              <td className="border px-4 py-2">
+                <input
+                  type="number"
+                  value={product.stock}
+                  min={0}
+                  onChange={(e) =>
+                    updateStock(product.id, Number(e.target.value))
+                  }
+                />
+              </td>
+              <td className="border px-4 py-2">
+                <button
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-150 hover:underline"
+                    onClick={() => updateStock(product.id, product.stock)}
+                >
+                    Save
+                </button>
+                </td>
                 <td className="border border-gray-300 px-4 py-2 text-gray-600">{product.stock > 5 ? (
                   <span className="text-green-600 font-semibold">In Stock</span>
                 ) : product.stock > 0 ? (
                   <span className="text-yellow-600 font-semibold">Low Stock</span>
                 ) : (
                   <span className="text-red-600 font-semibold">Out of Stock</span>
-                )}</td>
+                )}
+                </td>
                 <td className="border-b py-2 px-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getStatusColor(product.status)}`}>
                             {product.status}
                         </span>
                 </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <div className="bg-gray-50 border border-dashed border-gray-300 p-10 text-center rounded-lg">
-          <p className="text-gray-500 mb-4">No products found.</p>
-          <button
-            onClick={() => router.push("/dashboard/vendor/products/create")}
-            className="text-blue-500 underline hover:text-blue-700"
-          >
-            Create your first product
-          </button>
-        </div>
-      )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

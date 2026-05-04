@@ -76,6 +76,7 @@ export default function CreateProduct() {
           energy_usage: parseFloat(energyUsage),
           longevity: parseInt(longevity),
           weight: parseFloat(weight),
+          status: "pending",
         }),
       });
 
