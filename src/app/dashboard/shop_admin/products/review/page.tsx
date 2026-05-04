@@ -74,7 +74,16 @@ export default function ProductReviewPage() {
       <div className="bg-gradient-to-r from-green-600 to-green-500 rounded-lg p-4 text-white shadow mb-6">
         <h1 className="text-xl font-semibold">Review Product: {product.name}</h1>
         <p className="text-sm">Review the product details and approve or reject each metric.</p>
-      </div>  
+      </div>
+      {product.image && (
+        <div className="flex justify-center mb-6">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="h-48 w-48 object-cover rounded shadow"
+          />
+        </div>
+      )}  
       <table className="w-full mb-6 ">
         <tbody className="divide-y text-gray-700">
           {METRICS.map((metric) => (
