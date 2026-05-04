@@ -1,5 +1,5 @@
 // middleware.ts
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import type { Role } from "./src/auth"; // or wherever you export Role
 
@@ -9,7 +9,7 @@ const roleRoutes: Record<Role, string[]> = {
   shop_admin: ["/dashboard/admin", "/admin"],   
 };
 
-export async function middleware(req) {
+export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   const isProtected =
