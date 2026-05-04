@@ -84,7 +84,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     if (session.user) {
         session.user.id = token.id as string;
         session.user.username = token.username as string;
-        session.user.role = token.role as string;
+        session.user.role = token.role as Role;
         session.user.access_token = token.accessToken as string;
         
         // Check your terminal logs to see if this prints a real string
